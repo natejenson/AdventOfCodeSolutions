@@ -35,10 +35,19 @@
 ##x: 123
 ##y: 456
 ##In little Bobby's kit's instructions booklet (provided as your puzzle input), what signal is ultimately provided to wire a?
+##
+##--- Part Two ---
+##
+##Now, take the signal you got on wire a, override wire b to that signal, and reset the other wires (including wire a). What new signal is ultimately provided to wire a?
 
-# a map of string->string, where the key is the wire,
-#and the value is the string operation that computes its value, or the wires integer value, if already computed.
+
+# A map of wire->list-of-strings, where the key is the wire,
+# and the value is the string components of the operation that computes its value.
 wires = {}
+
+# A map of string->int, where the key is the wire,
+# and the value is the signal value for that wire.
+signals = {}
 
 # Parse the input once and build up the associations between the gates.
 def buildWiring(inputFile):
@@ -47,49 +56,56 @@ def buildWiring(inputFile):
         wires[rhs] = lhs.split(" ")
 
 # Do recursion because recursion
-def getValue(key):
-    # if the value is a number, return it.
-    if(key.isdigit()):
-        return int(key)
-
-    # if the value has been computed before, return it. This improves performance.
+def getSignal(wire):
+    # If the wire itself is just a signal, return it.
     try:
-        return int(wires[key])
+        return int(wire)
     except:
         pass
 
-    # the value of the wire is a yet unevalutated expression. Determine the operator
-    # and operands and evaluate/store it.
-    opParts = wires[key]
+    # If the value has been computed before, return it. This improves performance.
+    if (wire in signals):
+        return signals[wire]
+
+    # The value of the wire is a yet unevalutated expression. Determine the operator
+    # and operands to evaluate and store the value.
+    opParts = wires[wire]
     
     if(len(opParts) == 1):
         op = opParts[0]
-        value = getValue(op)
+        value = getSignal(op)
     else:
         operator = opParts[-2]
         if(operator == "AND"):
             op1,op2 = opParts[0],opParts[2]
-            value = getValue(op1) & getValue(op2)
+            value = getSignal(op1) & getSignal(op2)
         elif(operator == "OR"):
             op1,op2 = opParts[0],opParts[2]
-            value = getValue(op1) | getValue(op2)
+            value = getSignal(op1) | getSignal(op2)
         elif(operator == "LSHIFT"):
             op1,op2 = opParts[0],opParts[2]
-            value = getValue(op1) << getValue(op2)
+            value = getSignal(op1) << getSignal(op2)
         elif(operator == "RSHIFT"):
             op1,op2 = opParts[0],opParts[2]
-            value = getValue(op1) >> getValue(op2)
+            value = getSignal(op1) >> getSignal(op2)
         elif(operator == "NOT"):
             op1 = opParts[1]
-            value = ~getValue(op1)
-    wires[key] = value
+            value = ~getSignal(op1)
+    signals[wire] = value
 
-    return int(wires[key])
+    return signals[wire]
     
 
-def getValueFromFile(f,key):
+def getWireSignalFromFile(f,wire):
     buildWiring(f)
-    return getValue(key)
+    return getSignal(wire)
+
 
 f = open('day7-input.txt','r')
-print("Wire a: ", getValueFromFile(f,"a"))
+a = getWireSignalFromFile(f,"a")
+
+print("Part One:", a)
+
+signals = {}
+wires["b"] = [a]
+print("Part Two:", getSignal("a"))
