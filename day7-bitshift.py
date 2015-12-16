@@ -37,11 +37,11 @@
 ##In little Bobby's kit's instructions booklet (provided as your puzzle input), what signal is ultimately provided to wire a?
 
 # a map of string->string, where the key is the wire,
-#and the value is the string operation that computes its value.
+#and the value is the string operation that computes its value, or the wires integer value, if already computed.
 wires = {}
 
 # Parse the input once and build up the associations between the gates.
-def buildMap(inputFile):
+def buildWiring(inputFile):
     for line in inputFile:
         lhs, rhs = [x.strip() for x in line.split("->")]
         wires[rhs] = lhs.split(" ")
@@ -52,43 +52,44 @@ def getValue(key):
     if(key.isdigit()):
         return int(key)
 
-    # How can I make this faster, caching somehow?
+    # if the value has been computed before, return it. This improves performance.
+    try:
+        return int(wires[key])
+    except:
+        pass
+
+    # the value of the wire is a yet unevalutated expression. Determine the operator
+    # and operands and evaluate/store it.
     opParts = wires[key]
     
-    if (not opParts.isdigit()):
-        if(len(opParts) == 1):
-            op = opParts[0]
-            value = getValue(op)
-        else:
-            operator = opParts[-2]
-            if(operator == "AND"):
-                op1,op2 = opParts[0],opParts[2]
-                value = getValue(op1) & getValue(op2)
-            elif(operator == "OR"):
-                op1,op2 = opParts[0],opParts[2]
-                value = getValue(op1) | getValue(op2)
-            elif(operator == "LSHIFT"):
-                op1,op2 = opParts[0],opParts[2]
-                value = getValue(op1) << getValue(op2)
-            elif(operator == "RSHIFT"):
-                op1,op2 = opParts[0],opParts[2]
-                value = getValue(op1) >> getValue(op2)
-            elif(operator == "NOT"):
-                op1 = opParts[1]
-                value = ~getValue(op1)
-        wires[key] = value
+    if(len(opParts) == 1):
+        op = opParts[0]
+        value = getValue(op)
+    else:
+        operator = opParts[-2]
+        if(operator == "AND"):
+            op1,op2 = opParts[0],opParts[2]
+            value = getValue(op1) & getValue(op2)
+        elif(operator == "OR"):
+            op1,op2 = opParts[0],opParts[2]
+            value = getValue(op1) | getValue(op2)
+        elif(operator == "LSHIFT"):
+            op1,op2 = opParts[0],opParts[2]
+            value = getValue(op1) << getValue(op2)
+        elif(operator == "RSHIFT"):
+            op1,op2 = opParts[0],opParts[2]
+            value = getValue(op1) >> getValue(op2)
+        elif(operator == "NOT"):
+            op1 = opParts[1]
+            value = ~getValue(op1)
+    wires[key] = value
 
-    return wires[key]
+    return int(wires[key])
     
 
 def getValueFromFile(f,key):
-    buildMap(f)
-    print("map built. There are " + str(len(wires)) + " entries.")
+    buildWiring(f)
     return getValue(key)
-
-
-
-
 
 f = open('day7-input.txt','r')
 print("Wire a: ", getValueFromFile(f,"a"))
