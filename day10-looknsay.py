@@ -14,6 +14,14 @@
 ##Starting with the digits in your puzzle input, apply this process 40 times. What is the length of the result?
 ##
 ##Your puzzle input is: 1321131112.
+##
+##--- Part Two ---
+##
+##Neat, right? You might also enjoy hearing John Conway talking about this sequence (that's Conway of Conway's Game of Life fame).
+##
+##Now, starting again with the digits in your puzzle input, apply this process 50 times. What is the length of the new result?
+##
+##Your puzzle input is still 1321131112.
 
 import re
 def transform(numStr):
@@ -31,3 +39,4 @@ def lookNSay(numStr, iterations):
 
 
 print("Part One:",len(lookNSay("1321131112", 40)))
+print("Part Two:",len(lookNSay("1321131112", 50)))
