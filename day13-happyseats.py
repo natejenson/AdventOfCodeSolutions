@@ -29,8 +29,15 @@
 ##     -7  +83
 ##After trying every other seating arrangement in this hypothetical scenario, you find that this one is the most optimal, with a total change in happiness of 330.
 ##
-##What is the total change in happiness for the optimal seating arrangement of the actual guest list?
-
+####What is the total change in happiness for the optimal seating arrangement of the actual guest list?
+##
+##--- Part Two ---
+##
+##In all the commotion, you realize that you forgot to seat yourself. At this point, you're pretty apathetic toward the whole thing, and your happiness wouldn't really go up or down regardless of who you sit next to. You assume everyone else would be just as ambivalent about sitting next to you, too.
+##
+##So, add yourself to the list, and give all happiness relationships that involve you a score of 0.
+##
+##What is the total change in happiness for the optimal seating arrangement that actually includes yourself?
 import itertools
 from collections import defaultdict
 
@@ -44,6 +51,7 @@ def createHappyMap(happinessMappings):
         happyMap[person][neighbor] = happiness
     return happyMap
 
+# Get the happiness score for a particular seating alignment.
 def getHappinessScore(happyMap, alignment):
     score = 0
     numPeople = len(alignment)
@@ -55,6 +63,7 @@ def getHappinessScore(happyMap, alignment):
         score += happyMap[person][rightNeighbor]
     return score
 
+# Get the highest happiness score for all seating permutations.
 def getBestHappinessScore(happyMap):
     people = list(happyMap.keys())
     highestScore = float('-inf')
@@ -62,9 +71,22 @@ def getBestHappinessScore(happyMap):
         alignmentScore = getHappinessScore(happyMap,alignment)
         highestScore = max(highestScore,alignmentScore)
     return highestScore
-        
-    
+
+# For part Two, add a person to the map that has zero effect on the happiness.
+def addApatheticPersonToMap(name, happyMap):
+    existingPeople = list(happyMap.keys())
+    for person in existingPeople:
+        happyMap[person][name] = 0
+        happyMap[name][person] = 0
 
 f = open('day13-input.txt', 'r')
+
 happyMap = createHappyMap(f.readlines())
-print("Part One:",getBestHappinessScore(happyMap))
+bestHappinessScore = getBestHappinessScore(happyMap)
+print("Part One:", bestHappinessScore)
+
+addApatheticPersonToMap("Nate", happyMap)
+bestHappinessScoreTwo = getBestHappinessScore(happyMap)
+print("Part Two:", bestHappinessScoreTwo)
+
+
