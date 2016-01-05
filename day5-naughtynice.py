@@ -15,38 +15,47 @@
 ##haegwjzuvuyypxyu is naughty because it contains the string xy.
 ##dvszwmarrgswjxmb is naughty because it contains only one vowel.
 ##How many strings are nice?
+##
+##--- Part Two ---
+##
+##Realizing the error of his ways, Santa has switched to a better model of determining whether a string is naughty or nice. None of the old rules apply, as they are all clearly ridiculous.
+##
+##Now, a nice string is one with all of the following properties:
+##
+##It contains a pair of any two letters that appears at least twice in the string without overlapping, like xyxy (xy) or aabcdefgaa (aa), but not like aaa (aa, but it overlaps).
+##It contains at least one letter which repeats with exactly one letter between them, like xyx, abcdefeghi (efe), or even aaa.
+##For example:
+##
+##qjhvhtzxzqqjkmpb is nice because is has a pair that appears twice (qj) and a letter that repeats with exactly one letter between them (zxz).
+##xxyxx is nice because it has a pair that appears twice and a letter that repeats with one between, even though the letters used by each rule overlap.
+##uurcxstgmygtbstg is naughty because it has a pair (tg) but no repeat with a single letter between them.
+##ieodomkazucvgmuy is naughty because it has a repeating letter with one between (odo), but no pair that appears twice.
+##How many strings are nice under these new rules?
 
-def numNice(inputFile):
+import re
+
+def numNice(inputLines, niceFunction):
     nice = 0
-    for line in inputFile:
-        if (isNice(line)):
+    for line in inputLines:
+        if (niceFunction(line)):
             nice += 1
     return nice
 
-import re
 def isNice(line):
     hasThreeVowels = len([x for x in line if x in "aieou"]) > 2
-    hasRepeat = re.match(r'.*(\w)\1', line) != None
+    hasRepeat = re.search(r'(\w)\1', line) != None
     hasBadStrings =  any(x in line for x in ["ab","cd","pq","xy"])
     return hasThreeVowels and hasRepeat and not hasBadStrings
 
-##
-## PART TWO SOLUTION
-##
-def numReallyNice(inputFile):
-    nice = 0
-    for line in inputFile:
-        if (isReallyNice(line)):
-            nice += 1
-    return nice
-
-import re
 def isReallyNice(line):
-    return True
+    hasRepeat = re.search(r'(\w{2}).*\1', line) != None
+    hasLetterBetweenRepeat = re.search(r'(\w)\w\1', line) != None
+    return hasRepeat and hasLetterBetweenRepeat
 
 
 f = open('day5-input.txt','r')
+lines = f.readlines()
 
-#print("Nice:", numNice(f))
-print("Really Nice:", numReallyNice(f))
+print("Part One:", numNice(lines, isNice))
+print("Part Two:", numNice(lines, isReallyNice))
         
