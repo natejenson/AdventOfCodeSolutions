@@ -21,12 +21,25 @@ class Reindeer:
         self.speedTime = speedTime
         self.restTime = restTime
     
-def farthestDistanceAtTime(allReindeer, seconds):
-    return 0
+def farthestDistanceAtTime(allReindeer, t):
+    farthestDistance = 0
+    for reindeer in allReindeer:
+        farthestDistance = max(farthestDistance, distanceAtTime(reindeer,t))
+    return farthestDistance
 
 # Get the distance of a reindeer at a certain time.
-def distanceAtTime(reindeer, time):
-    return 0
+def distanceAtTime(reindeer, t):
+    s = reindeer.speed
+    x = reindeer.speedTime
+    r = reindeer.restTime
+    
+    block = t//(x+r)
+    isInFlight = (t%(r+x) <= x)
+    if(isInFlight):
+        timeInFlight = t%(x+r)
+        return(s*(timeInFlight + (x*(block))))
+    else:
+        return(s*x*(1+(block)))
 
 def getReindeerFromFile(file):
     reindeerList = []
@@ -37,4 +50,6 @@ def getReindeerFromFile(file):
 
 f = open('day14-input.txt','r')
 reindeer = getReindeerFromFile(f)
+
+print("Part One:", farthestDistanceAtTime(reindeer,2503))
 
