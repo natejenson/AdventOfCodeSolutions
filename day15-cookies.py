@@ -24,7 +24,14 @@
 ##Multiplying these together (68 * 80 * 152 * 76, ignoring calories for now) results in a total score of 62842880, which happens to be the best score possible given these ingredients. If any properties had produced a negative total, it would have instead become zero, causing the whole score to multiply to zero.
 ##
 ##Given the ingredients in your kitchen and their properties, what is the total score of the highest-scoring cookie you can make?
-
+##
+##--- Part Two ---
+##
+##Your cookie recipe becomes wildly popular! Someone asks if you can make another recipe that has exactly 500 calories per cookie (so they can use it as a meal replacement). Keep the rest of your award-winning process the same (100 teaspoons, same ingredients, same scoring system).
+##
+##For example, given the ingredients above, if you had instead selected 40 teaspoons of butterscotch and 60 teaspoons of cinnamon (which still adds to 100), the total calorie count would be 40*8 + 60*3 = 500. The total score would go down, though: only 57600000, the best you can do in such trying circumstances.
+##
+##Given the ingredients in your kitchen and their properties, what is the total score of the highest-scoring cookie you can make with a calorie total of 500?
 from itertools import product
 from functools import reduce
 import operator
@@ -44,11 +51,16 @@ def recipeScore(ingredients, recipe):
                                           for ingredient, amount in recipeMap]))
                                          for ingredientName in ingredients[0].scores.keys()])
 
-def bestRecipeScore(ingredients, recipes):
+# Get the highest score of any ingredient combination. Optionally limit to only recipes that reach a
+# certain number of calories.
+def bestRecipeScore(ingredients, recipes, calorieAmount=None):
     bestScore = 0
     for recipe in recipes:
+        recipeMap = list(zip(ingredients, recipe))
         currentScore = recipeScore(ingredients, recipe)
-        bestScore = max(bestScore, currentScore)
+        calories = sum([ing.calories * amount for ing, amount in recipeMap])
+        if (calorieAmount == None or calorieAmount == calories):
+            bestScore = max(bestScore, currentScore)
     return bestScore
 
 # Returns an iterable containing the mix of amounts of ingredients to use.
@@ -70,4 +82,5 @@ f = open('day15-input.txt','r')
 ingredients = getIngredientsFromFile(f)
 recipes = getRecipes(ingredients, 100)
 
-print("Part One:", bestRecipeScore(ingredients, recipes))
+#print("Part One:", bestRecipeScore(ingredients, recipes))
+print("Part Two:", bestRecipeScore(ingredients, recipes, 500))
