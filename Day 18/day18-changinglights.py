@@ -66,6 +66,65 @@
 ##    After 4 steps, this example has four lights on.
 ##
 ##    In your grid of 100x100 lights, given your initial configuration, how many lights are on after 100 steps?
+##
+##    Your puzzle answer was 1061.
+##
+##    --- Part Two ---
+##
+##    You flip the instructions over; Santa goes on to point out that this is all just an implementation of Conway's Game of Life. At least, it was, until you notice that something's wrong with the grid of lights you bought: four lights, one in each corner, are stuck on and can't be turned off. The example above will actually run like this:
+##
+##    Initial state:
+##    ##.#.#
+##    ...##.
+##    #....#
+##    ..#...
+##    #.#..#
+##    ####.#
+##
+##    After 1 step:
+##    #.##.#
+##    ####.#
+##    ...##.
+##    ......
+##    #...#.
+##    #.####
+##
+##    After 2 steps:
+##    #..#.#
+##    #....#
+##    .#.##.
+##    ...##.
+##    .#..##
+##    ##.###
+##
+##    After 3 steps:
+##    #...##
+##    ####.#
+##    ..##.#
+##    ......
+##    ##....
+##    ####.#
+##
+##    After 4 steps:
+##    #.####
+##    #....#
+##    ...#..
+##    .##...
+##    #.....
+##    #.#..#
+##
+##    After 5 steps:
+##    ##.###
+##    .##..#
+##    .##...
+##    .##...
+##    #.#...
+##    ##...#
+##    After 5 steps, this example now has 17 lights on.
+##
+##    In your grid of 100x100 lights, given your initial configuration, but with the four corners always in the on state, how many lights are on after 100 steps?
+##
+##    Your puzzle answer was 1006.
 
 import copy
 
@@ -119,9 +178,21 @@ def animateLights(lights):
             lights[y][x] = animateLight(x,y,oldState)
     return lights
 
-def animateLightsN(lights, n):
+# Animate all of the lights in the given two-dimensional array, keeping the corner lights the same.
+def animateLightsKeepCorners(lights):
+    oldState = copy.deepcopy(lights)
+    for y in range(len(oldState)):
+        for x in range(len(oldState[0])):
+            if (not isCorner(x,y, lights)):
+                lights[y][x] = animateLight(x,y,oldState)
+    return lights
+
+def animateLightsN(lights, n, keepCornersOn=False):
     for i in range(n):
-        lights = animateLights(lights)
+        if(keepCornersOn):
+            lights = animateLightsKeepCorners(lights)
+        else:
+            lights = animateLights(lights)
     return lights
 
 # Counts the number of 'on' lights.
@@ -132,10 +203,26 @@ def countLightsOn(lights):
             if(lights[y][x]):
                 count += 1
     return count
-            
+
+# Turn on the corner lights.
+def turnOnCornerLights(lights):
+    x,y = len(lights[0]),len(lights)
+    lights[0][0] = lights[0][x-1] = lights[y-1][0] = lights[y-1][x-1]
+    return lights
+
+# Returns whether or not the given light is a corner light.
+def isCorner(x,y,lights):
+    width,height = len(lights[0]),len(lights)
+    return (x,y) == (0,0) or (x,y) == (width-1,0) or (x,y) == (0,height-1) or (x,y) == (width-1,height-1)
+
+
 
 f = open('day18-input.txt','r')
-lights = getInitialLights(f)
+initialLights = getInitialLights(f)
 
-print("Part One:", countLightsOn(animateLightsN(lights, 100)))
+print("Part One:", countLightsOn(animateLightsN(copy.deepcopy(initialLights), 100)))
+
+lightsWithCornersOn = turnOnCornerLights(copy.deepcopy(initialLights))
+print("Part Two:", countLightsOn(animateLightsN(lightsWithCornersOn, 100, True)))
+
 
